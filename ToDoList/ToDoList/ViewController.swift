@@ -14,6 +14,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var todoText: NSTextField!
     @IBOutlet weak var importantCheckBox: NSButton!
     
+    @IBOutlet weak var deleteBtn: NSButton!
     var appDelegate = NSApplication.shared.delegate as? AppDelegate
     var todoItems = [ToDoItem]()
     
@@ -41,6 +42,19 @@ class ViewController: NSViewController {
             //update Table View
             tableView.reloadData()
         }
+    }
+    @IBAction func deleteClicked(_ sender: Any) {
+        
+        
+        let todoItem = todoItems[tableView.selectedRow]
+        if let context =  appDelegate?.persistentContainer.viewContext{
+             
+            context.delete(todoItem)
+            appDelegate?.saveAction(nil)
+            getTodoItems()
+            deleteBtn.isHidden = true
+        }
+        
     }
     
     @IBAction func addClicked(_ sender: Any) {
@@ -95,20 +109,30 @@ extension ViewController : NSTableViewDelegate , NSTableViewDataSource{
             }
             
         }else{
-           if let cell =  tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "ToDoCell"), owner: self) as? NSTableCellView{
+         
+             if let cell =  tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "ToDoCell"), owner: self) as? NSTableCellView{
                  let todoItem = todoItems[row]
                 if let name = todoItem.name{
                 cell.textField?.stringValue = name
                 }else{
                 cell.textField?.stringValue = ""
                 }
-                
                 return cell
             }
         }
         
         return nil
    
+        
+    }
+    
+    
+    
+    
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        deleteBtn.isHidden = false
+        
+        
         
     }
     
